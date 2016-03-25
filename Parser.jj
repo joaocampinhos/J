@@ -40,10 +40,10 @@ TOKEN :
   | < DEREF  : "!"      >
   | < NOT    : "~"      >
   | < NOTE   : "!="     >
-  | < SEMI   : ";"      >
   | < LBRACK : "{"      >
   | < RBRACK : "}"      >
   | < DOT    : "."      >
+  | < SEMI   : ";"      >
   | < NUM    : (["0"-"9"])+ >
   | < BOOL   : ("true" | "false") >
   | < TYPE   : ("int" | "bool" | "ref" | "rec" | "function") >
@@ -52,12 +52,15 @@ TOKEN :
 
 ASTNode Prog():
 {
-  ASTNode t;
+  ASTNode t1, t2;
 }
 {
-  t = Exp() <EL>
+  t1 = Exp() ( <SEMI> t2 = Exp()
   {
-    return t;
+    t1 = new ASTMultiple(t1, t2);
+  })* <EL>
+  {
+    return t1;
   }
 }
 
@@ -135,8 +138,8 @@ ASTNode Fact():
   | <LBRACK>
     { ve = new Vector<Binding>(); }
       (
-        ( n = <ID> <EQ> t1 = Exp() { ve.addElement(new Binding(n.image, t1)); } )
-        ( <COMM> n = <ID> <EQ> t1 = Exp() { ve.addElement(new Binding(n.image, t1)); } )*
+        ( n = <ID> <COL> t1 = Exp() { ve.addElement(new Binding(n.image, t1)); } )
+        ( <COMM> n = <ID> <COL> t1 = Exp() { ve.addElement(new Binding(n.image, t1)); } )*
       )?
     <RBRACK> { t1 = new ASTRecord(ve); }
   )
