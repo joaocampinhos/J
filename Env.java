@@ -4,17 +4,37 @@ public class Env {
 
   class Assoc {
     String id;
+    int version;
+    boolean isVs;
     IValue v;
 
     public Assoc(String s, IValue vi)
     {
       id = s;
       v = vi;
+      isVs = false;
+    }
+
+    public Assoc(String s, int vs, IValue vi)
+    {
+      id = s;
+      version = vs;
+      v = vi;
+      isVs = true;
     }
 
     String getId()
     {
       return id;
+    }
+
+    boolean isVersioned () {
+      return isVs;
+    }
+
+    int getVersion()
+    {
+      return version;
     }
 
     IValue getValue()
@@ -27,6 +47,15 @@ public class Env {
     String id;
 
     public UndeclaredIdentifier(String s)
+    {
+      id = s;
+    }
+  }
+
+  public class DuplicatedVersion extends Exception {
+    Integer id;
+
+    public DuplicatedVersion(Integer s)
     {
       id = s;
     }
@@ -76,27 +105,73 @@ public class Env {
 
   IValue find(String id) throws UndeclaredIdentifier
   {
+    IValue res = null;
+    int bigV = 0;
     Iterator<Assoc> al = alist.iterator();
     while (al.hasNext())
     {
       Assoc a = al.next();
-      if (a.getId().equals(id))
-        return a.getValue();
+      if (a.getId().equals(id)) {
+        if (a.getVersion() >= bigV) {
+            res = a.getValue();
+            bigV = a.getVersion();
+        }
+      }
     }
+    if (res != null) return res;
     if (upper != null)
       return upper.find(id) ;
     else throw new UndeclaredIdentifier(id);
   }
 
+  IValue find(String id, Integer v) throws UndeclaredIdentifier
+  {
+    System.out.println("Encontra: ("+id+","+v+")");
+    System.out.println(toString());
+    Iterator<Assoc> al = alist.iterator();
+    while (al.hasNext())
+    {
+      Assoc a = al.next();
+      if (a.getId().equals(id)) {
+        if (a.isVersioned()) {
+          if (a.getVersion() == v) {
+            return a.getValue();
+          }
+        }
+        else {
+          return a.getValue();
+        }
+      }
+    }
+    if (upper != null)
+      return upper.find(id,v) ;
+    else throw new UndeclaredIdentifier(id);
+  }
+
   void assoc(String id, IValue v) throws IdentifierDeclaredTwice
   {
+    //System.out.println("Assoc: ("+id+")");
+    Iterator<Assoc> al = alist.iterator();
+    while (al.hasNext()) {
+      Assoc a = al.next();
+      //TODO: fix hack
+      if (a.getId().equals(id) && id != "this")
+        throw new IdentifierDeclaredTwice(id);
+    }
+    alist.addElement(new Assoc(id,v));
+  }
+
+  void assoc(String id, int vs, IValue v) throws IdentifierDeclaredTwice, DuplicatedVersion
+  {
+    //System.out.println("Assoc: ("+id+","+v+")");
     Iterator<Assoc> al = alist.iterator();
     while (al.hasNext()) {
       Assoc a = al.next();
       if (a.getId().equals(id))
-        throw new IdentifierDeclaredTwice(id);
-    }
-    alist.addElement(new Assoc(id,v));
+        if(a.getVersion() == vs)
+          throw new DuplicatedVersion(vs);
+      }
+    alist.addElement(new Assoc(id, vs, v));
   }
 
   public String toString() {

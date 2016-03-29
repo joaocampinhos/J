@@ -3,7 +3,7 @@ import java.util.*;
 public class ASTRecord implements ASTNode {
   Vector<Binding> ve;
 
-  public IValue eval(Env e) throws TypeError, Env.IdentifierDeclaredTwice, Env.UndeclaredIdentifier {
+  public IValue eval(Env e) throws TypeError, Env.IdentifierDeclaredTwice, Env.DuplicatedVersion, Env.UndeclaredIdentifier {
     Env eaux = e.beginScope();
 
     RecValue r = new RecValue(eaux);
@@ -12,7 +12,7 @@ public class ASTRecord implements ASTNode {
     Iterator<Binding> it = ve.iterator();
     while(it.hasNext()) {
       Binding a = it.next();
-      eaux.assoc(a.getId(), a.getExp().eval(e));
+      eaux.assoc(a.getId(), a.getVersion(), a.getExp().eval(e));
     }
 
     eaux.endScope();

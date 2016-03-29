@@ -1,7 +1,7 @@
 public class ASTPlus implements ASTNode {
   ASTNode left, right;
 
-  public IValue eval(Env e) throws TypeError , Env.IdentifierDeclaredTwice, Env.UndeclaredIdentifier{
+  public IValue eval(Env e) throws TypeError, Env.IdentifierDeclaredTwice, Env.DuplicatedVersion, Env.UndeclaredIdentifier {
     IValue v1 = left.eval(e);
     IValue v2 = right.eval(e);
 

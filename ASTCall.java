@@ -4,7 +4,7 @@ public class ASTCall implements ASTNode {
   Vector<ASTNode> vs;
   ASTNode body;
 
-  public IValue eval(Env e) throws TypeError, Env.IdentifierDeclaredTwice, Env.UndeclaredIdentifier{
+  public IValue eval(Env e) throws TypeError, Env.IdentifierDeclaredTwice, Env.DuplicatedVersion, Env.UndeclaredIdentifier {
     IValue f = body.eval(e);
     if (f.typeOf() == IValue.VType.FUN) {
       FunValue fun = (FunValue)f;

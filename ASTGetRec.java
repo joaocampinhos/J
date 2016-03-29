@@ -3,8 +3,9 @@ import java.util.*;
 public class ASTGetRec implements ASTNode {
   ASTNode t;
   ASTNode id;
+  int v;
 
-  public IValue eval(Env e) throws TypeError, Env.IdentifierDeclaredTwice, Env.UndeclaredIdentifier{
+  public IValue eval(Env e) throws TypeError, Env.IdentifierDeclaredTwice, Env.DuplicatedVersion, Env.UndeclaredIdentifier {
 
     IValue r = t.eval(e);
 

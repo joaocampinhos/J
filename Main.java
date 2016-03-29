@@ -37,6 +37,9 @@ public class Main {
           catch (Env.UndeclaredIdentifier e) {
             System.out.println (ANSI_RED + "Undeclared id." + ANSI_RESET);
           }
+          catch (Env.DuplicatedVersion e) {
+            System.out.println (ANSI_RED + "Duplicated version declared." + ANSI_RESET);
+          }
           catch (Env.IdentifierDeclaredTwice e) {
             System.out.println (ANSI_RED + "Id declared twice." + ANSI_RESET);
           }
@@ -60,6 +63,9 @@ public class Main {
             catch (Env.UndeclaredIdentifier e) {
               System.out.println (ANSI_RED + "Undeclared id." + ANSI_RESET);
               parser.ReInit(System.in);
+            }
+            catch (Env.DuplicatedVersion e) {
+              System.out.println (ANSI_RED + "Duplicated version declared." + ANSI_RESET);
             }
             catch (Env.IdentifierDeclaredTwice e) {
               System.out.println (ANSI_RED + "Id declared twice." + ANSI_RESET);

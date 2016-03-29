@@ -55,10 +55,24 @@ ASTNode Prog():
   ASTNode t1, t2;
 }
 {
-  t1 = Exp() ( <SEMI> t2 = Exp()
+  t1 = LAss() ( <SEMI> t2 = LAss()
   {
     t1 = new ASTMultiple(t1, t2);
   })* <EL>
+  {
+    return t1;
+  }
+}
+
+ASTNode LAss():
+{
+  ASTNode t1, t2;
+}
+{
+  t1 = Exp() ( <ASS> t2 = Exp()
+  {
+    t1 = new ASTAssi(t1, t2);
+  })?
   {
     return t1;
   }
@@ -114,14 +128,20 @@ ASTNode SFact():
 
 ASTNode Fact():
 {
-  Token n, t;
+  Token n;
+  Token t = null;
   ASTNode t1, t2;
   Vector<Binding> ve;
   Vector<String> vs, vt;
 }
 {
   ( n = <NUM>  { t1 = new ASTNum(Integer.parseInt(n.image)); }
-  | n = <ID>   { t1 = new ASTId(n.image); }
+  | n = <ID>  (<AT> t = <NUM>)?  {
+    if (t != null)
+      t1 = new ASTId(n.image,Integer.parseInt(t.image));
+    else
+      t1 = new ASTId(n.image);
+    }
   | <DECL> { ve = new Vector<Binding>(); }
       ( n = <ID> <EQ> t1 = Exp() { ve.addElement(new Binding(n.image, t1)); } )*
     <IN>
@@ -138,8 +158,22 @@ ASTNode Fact():
   | <LBRACK>
     { ve = new Vector<Binding>(); }
       (
-        ( n = <ID> <COL> t1 = Exp() { ve.addElement(new Binding(n.image, t1)); } )
-        ( <COMM> n = <ID> <COL> t1 = Exp() { ve.addElement(new Binding(n.image, t1)); } )*
+        ( n = <ID> (<AT> t = <NUM>)? <COL> t1 = Exp() {
+        if (t != null) {
+          ve.addElement(new Binding(n.image, Integer.parseInt(t.image), t1));
+        }
+        else {
+          ve.addElement(new Binding(n.image, t1));
+        }
+        } )
+        ( <COMM> n = <ID> (<AT> t = <NUM> )? <COL> t1 = Exp() {
+        if (t != null) {
+          ve.addElement(new Binding(n.image, Integer.parseInt(t.image), t1));
+        }
+        else {
+          ve.addElement(new Binding(n.image, t1));
+        }
+        } )*
       )?
     <RBRACK> { t1 = new ASTRecord(ve); }
   )
